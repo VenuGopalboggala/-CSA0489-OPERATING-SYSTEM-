@@ -1,0 +1,36 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <sys/shm.h>
+
+#define SHM_KEY 1234
+#define SHM_SIZE 1024
+
+int main() {
+    int shmid;
+    char *shmaddr;
+
+    // Locate the shared memory segment
+    shmid = shmget(SHM_KEY, SHM_SIZE, 0666);
+    if (shmid < 0) {
+        perror("shmget");
+        exit(1);
+    }
+
+    // Attach the segment to our data space
+    shmaddr = shmat(shmid, NULL, 0);
+    if (shmaddr == (char *) -1) {
+        perror("shmat");
+        exit(1);
+    }
+
+    // Read the data from the shared memory
+    printf("Data read from shared memory: %s\n", shmaddr);
+
+    // Detach from the shared memory segment
+    shmdt(shmaddr);
+
+    // Optionally, delete the shared memory segment
+    // shmctl(shmid, IPC_RMID, NULL);
+
+    return 0;
+}
